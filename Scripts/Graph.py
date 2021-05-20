@@ -53,7 +53,7 @@ class Graph:
         else:
             return None
 
-    def add_edge(self, frm, to, cost = 0):
+    def add_edge(self, frm, to, cost=0):
         if frm not in self.vert_dict:
             self.add_vertex(frm)
         if to not in self.vert_dict:
