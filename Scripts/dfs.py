@@ -71,10 +71,10 @@ class Graph:
                 self.DFS_rec(i, visited)
 
 
-G = Graph(5)
+G = Graph(6)
 G.addEdge(0,1)
 G.addEdge(0,2)
 G.addEdge(1,3)
 G.addEdge(2,4)
-G.addEdge(3,4)
+G.addEdge(2,5)
 G.DFS()
