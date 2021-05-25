@@ -29,7 +29,6 @@ class Vertex:
 class Graph:
     def __init__(self):
         self.vert_dict = {}
-        self.vert_heur = {}
         self.num_vertices = 0
 
     def __iter__(self):
@@ -49,6 +48,7 @@ class Graph:
 
     def add_edge(self, frm, to, cost):
         self.vert_dict[frm].add_neighbor(self.vert_dict[to], self.vert_dict[to].heur, cost)
+        self.vert_dict[to].add_neighbor(self.vert_dict[frm], self.vert_dict[to].heur, cost)
 
 
     def get_vertices(self):
@@ -76,6 +76,23 @@ class Graph:
             path.append(node)
         print(path)
 
+    def A_star_yasser(self, node):
+        ref_path = [self.vert_dict[node]]
+        path = [node]
+        cost = 0
+        while not self.vert_dict[node].isGoal:
+            self.fringe = self.vert_dict[node].fx
+            for i in ref_path:
+                if i in self.fringe.keys():
+                    self.fringe.pop(i)
+            next_vertex = min(self.fringe, key=self.fringe.get)
+            cost = cost + self.vert_dict[node].adjacent[next_vertex]
+            node = next_vertex.id
+            ref_path.append(next_vertex)
+            path.append(node)
+        print(path)
+        print(ref_path)
+        print(cost)
 
 g = Graph()
 g.add_vertex(0, None)
@@ -102,3 +119,4 @@ g.set_goal(6)
 print(g.get_vertices())
 print(g.vert_dict[0].get_connections())
 g.A_star_search(0)
+g.A_star_yasser(0)
