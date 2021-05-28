@@ -1,7 +1,6 @@
 import random
 
 
-
 class Graph_GUI(object):
     def __init__(self, digraph=False):
         self.digraph = digraph
