@@ -1,7 +1,6 @@
 from queue import PriorityQueue
 
 
-
 def uniform_cost(graph, from_node, goal_node=None):
   q = PriorityQueue() # create a priority queue
   node_dict = {}  # create a node dictionary to return a distance, parent pair given a node value 
@@ -18,8 +17,7 @@ def uniform_cost(graph, from_node, goal_node=None):
     if node not in graph.nodes_dict:
       print ('Invalid end node of ' + str(node))
       return	
-    
-  # set up algorithm start conditions
+
   for node in graph.nodes_dict.keys(): # for each node
     if node == from_node: # if node is the start node
       q.put((0, node))  # put node in queue with 0 distance
@@ -39,13 +37,13 @@ def uniform_cost(graph, from_node, goal_node=None):
   result = []
   for node in goal_node: # go through all end nodes
     path = [node] 
-    total_dist = node_dict[node][0] # set total distance to dist from start to goal node
+    total_dist = node_dict[node][0]
     if total_dist == float('inf'): # if path wasn't found
       result.append((node, total_dist, None)) # return result with None 
     else:  
-      while path[0] != from_node: # while node at 0 index is not start node
-        path.insert(0, node_dict[path[0]][1]) # insert parent into 0 index of path
-      result.append((node, total_dist, path)) # add path to result list
+      while path[0] != from_node:
+        path.insert(0, node_dict[path[0]][1])
+      result.append((node, total_dist, path))
 
   return result	  
 

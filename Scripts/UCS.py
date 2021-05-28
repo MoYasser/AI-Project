@@ -1,7 +1,9 @@
 import heapq
+import tkinter as tk
+from tkinter import *
 from math import inf
 
-class Graph:
+class Graphh:
     def __init__(self):
         self.edges = {}
 
@@ -21,11 +23,8 @@ class Graph:
 
     def uniform_cost_search(self, start, goal):
         found, fringe, visited, came_from, cost_so_far = False, [(0, start)], set([start]), {start: None}, {start: 0}
-        print('{:11s} | {}'.format('Expand Node', 'Fringe'))
-        print('{:11s} | {}'.format('-', str((0, start))))
         while not found and len(fringe):
             _, current = heapq.heappop(fringe)
-            print('{:11s}'.format(current), end=' | ')
             if current == goal: found = True; break
             for node in self.neighbors(current):
                 new_cost = cost_so_far[current] + self.cost(current, node)
@@ -40,7 +39,7 @@ class Graph:
     def print_path(came_from, goal):
         parent = came_from[goal]
         if parent:
-            Graph.print_path(came_from, parent)
+            Graphh.print_path(came_from, parent)
         else: print(goal, end='');return
         print(' =>', goal, end='')
 
@@ -48,15 +47,16 @@ class Graph:
     def __str__(self):
         return str(self.edges)
 
-graph = Graph()
-graph.add_edge('A', 'B', 1)
-graph.add_edge('A', 'C', 3)
-graph.add_edge('B', 'D', 1)
-graph.add_edge('B', 'E', 1)
-graph.add_edge('C', 'G', 1)
-graph.add_edge('C', 'H', 2)
-graph.add_edge('D', 'F', 1)
+graph1 = Graphh()
+graph1.add_edge('A', 'B', 1)
+graph1.add_edge('A', 'C', 3)
+graph1.add_edge('B', 'D', 1)
+graph1.add_edge('B', 'E', 1)
+graph1.add_edge('C', 'G', 1)
+graph1.add_edge('C', 'H', 2)
+graph1.add_edge('D', 'F', 1)
 
 start, goal = 'A', 'G'
-traced_path, cost = graph.uniform_cost_search(start, goal)
-if (traced_path): print('Path:', end=' '); Graph.print_path(traced_path, goal); print('\nCost:', cost)
+traced_path, cost = graph1.uniform_cost_search(start, goal)
+if (traced_path): print('Path:', end=' '); Graphh.print_path(traced_path, goal); print('\nCost:', cost)
+

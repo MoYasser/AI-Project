@@ -1,21 +1,8 @@
-import tkinter as tk
-from ctypes import *
-from ctypes.wintypes import POINT
-from tkinter import *
 from PyQt5 import QtCore, QtGui,QtWidgets
 import GUIGraph as graph
 import graph_path_algorithm as path_alg
-
 import math
-
-from Scripts.UCS import *
-
-#mainWindow = tk.Tk()
-#mainWindow.title('Informed and Uninformed Searches')
-#canvas = tk.Canvas(mainWindow, height=725, width=725)
-#canvas.pack()
-#button_exit = Button(mainWindow, text="Exit", command=mainWindow.quit)
-#button_exit.pack()
+import InformedSearch
 
 
 class Node(QtWidgets.QGraphicsItem):
@@ -459,6 +446,14 @@ class GraphGUi(QtWidgets.QGraphicsScene):
          self.update()
          self.path_displayed = (True, start_node, goal_node, str(short_path_info[1])) # reset path displayed information
          self.data_updater.signal.emit() # emit a signal to notify that the graph was updated
+
+    def show_AStar_path (self, start_node, goal_node):
+        self.delete_shortest_path()  # delete shortest path of currently displayed
+        path = None
+        node1 = InformedSearch.Graph.set_start(start_node)
+        node2 = InformedSearch.Graph.set_goal(goal_node)
+        short_path_info = InformedSearch.Graph.A_star(start_node)
+
 
 
     def delete_shortest_path(self):

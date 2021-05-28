@@ -10,6 +10,7 @@ class Graph:
         Q = []
         visited = [False] * self.m_V
         Q.append(s)
+
         visited[s] = True
         while len(Q) > 0:
             v = Q.pop(0)
