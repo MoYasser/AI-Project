@@ -1,4 +1,4 @@
-class Vertex:
+class Vertex(object):
     def __init__(self, node, h):
         self.id = node
         self.adjacent = {}
@@ -11,13 +11,13 @@ class Vertex:
     def __str__(self):
         return str(self.id) + ' adjacent: ' + str([x.id for x in self.adjacent])
 
-    def add_neighbor(self, neighbor, h, cost):
+    def add_neighbor(self, neighbor, h, weight):
         self.heuristic[neighbor] = h
-        self.adjacent[neighbor] = cost
-        self.fx[neighbor] = h + cost
+        self.adjacent[neighbor] = weight
+        self.fx[neighbor] = h + weight
 
     def get_connections(self):
-        return self.heuristic.items()
+        return self.adjacent
 
     def get_id(self):
         return self.id
@@ -30,6 +30,8 @@ class Graph:
     def __init__(self):
         self.vert_dict = {}
         self.num_vertices = 0
+        self.heur_dict = {}
+        self.fringe = {}
 
     def __iter__(self):
         return iter(self.vert_dict.values())
@@ -38,6 +40,7 @@ class Graph:
         self.num_vertices = self.num_vertices + 1
         new_vertex = Vertex(node, h)
         self.vert_dict[node] = new_vertex
+        self.heur_dict[node] = h
         return new_vertex
 
     def get_vertex(self, n):
@@ -46,10 +49,9 @@ class Graph:
         else:
             return None
 
-    def add_edge(self, frm, to, cost):
-        self.vert_dict[frm].add_neighbor(self.vert_dict[to], self.vert_dict[to].heur, cost)
-        self.vert_dict[to].add_neighbor(self.vert_dict[frm], self.vert_dict[to].heur, cost)
-
+    def add_edge(self, frm, to, weight):
+        self.vert_dict[frm].add_neighbor(self.vert_dict[to], self.vert_dict[to].heur, weight)
+        self.vert_dict[to].add_neighbor(self.vert_dict[frm], self.vert_dict[frm].heur, weight)
 
     def get_vertices(self):
         return self.vert_dict.keys()
@@ -66,17 +68,24 @@ class Graph:
     def del_start(self, node):
         self.vert_dict[node].isStart = False
 
-    '''
-    def A_star_search(self, node):
-        flag = True
-        path = []
-        path.append(node)
+    def greedy_search(self, node):
+        ref_path = [self.vert_dict[node]]
+        path = [node]
+        cost = 0
         while not self.vert_dict[node].isGoal:
-            next_vertex = min(self.vert_dict[node].fx, key=self.vert_dict[node].fx.get)
+            self.fringe = self.vert_dict[node].heuristic
+            for i in ref_path:
+                if i in self.fringe.keys():
+                    self.fringe.pop(i)
+            next_vertex = min(self.fringe, key=self.fringe.get)
+            cost = cost + self.vert_dict[node].adjacent[next_vertex]
             node = next_vertex.id
+            ref_path.append(next_vertex)
             path.append(node)
         print(path)
-'''
+        print(ref_path)
+        print(cost)
+
     def A_star(self, node):
         ref_path = [self.vert_dict[node]]
         path = [node]
@@ -96,7 +105,7 @@ class Graph:
         print(cost)
 
 g = Graph()
-g.add_vertex(0, None)
+g.add_vertex(0, 100)
 g.add_vertex(1, 9)
 g.add_vertex(2, 5)
 g.add_vertex(3, 6)
@@ -117,6 +126,4 @@ g.add_edge(4, 6, 7)
 g.add_edge(7, 6, 3)
 g.set_start(0)
 g.set_goal(6)
-print(g.get_vertices())
-print(g.vert_dict[0].get_connections())
 g.A_star(0)
