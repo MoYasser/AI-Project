@@ -2,7 +2,6 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from GUI import GraphGUi
 
 
-
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
 
