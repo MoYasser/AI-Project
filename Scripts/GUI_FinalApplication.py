@@ -364,6 +364,10 @@ class Ui_MainWindow(object):
         self.show_path_btn.setObjectName("show_path")
         self.verticalLayout2.addWidget(self.show_path_btn)
 
+        self.clear_path_btn = QtWidgets.QPushButton(self.centralwidget)
+        self.clear_path_btn.setObjectName("clear_path")
+        self.verticalLayout2.addWidget(self.clear_path_btn)
+
         self.horizontalLayout.addLayout(self.verticalLayout2)
         self.verticalLayout.addLayout(self.gridLayout_2)
 
@@ -385,7 +389,6 @@ class Ui_MainWindow(object):
 
         # connect update_data function to signal
         self.scene.data_updater.signal.connect(lambda: self.update_data())
-
         self.AddEdge_btn.clicked.connect(lambda: self.scene.add_edge(self.Node1_labelbox.text(),
                                                                       self.Node2_labelbox.text(),
                                                                       self.edge_weight_labelbox.text()))  # add edge
@@ -393,6 +396,7 @@ class Ui_MainWindow(object):
         self.delete_edge_btn.clicked.connect(lambda: self.scene.remove_edge(self.Node1RE_labelbox.text(),
                                                                             self.Node2RE_labelbox.text()))  # remove edge
         self.show_path_btn.clicked.connect(lambda: self.show_selected_path())
+        self.clear_path_btn.clicked.connect(lambda: self.scene.delete_shortest_path())
 
         self.delete_node_btn.clicked.connect(
             lambda: self.scene.remove_node(self.delete_node.text()))  # remove node
@@ -408,7 +412,8 @@ class Ui_MainWindow(object):
             self.scene.show_AStar_path(self.start_node_labelbox.text(), self.end_node_labelbox.text())
         if algo == 'Greedy':
             self.scene.show_Greedy_path(self.start_node_labelbox.text(), self.end_node_labelbox.text())
-
+        if algo == 'BFS':
+            self.scene.show_BFS_path(self.start_node_labelbox.text(), self.end_node_labelbox.text())
 
     def edit_path_algorithm(self):
 
@@ -445,6 +450,7 @@ class Ui_MainWindow(object):
         self.delete_edge_btn.setText(_translate("MainWindow", "Delete Edge"))
         self.delete_node_btn.setText(_translate("MainWindow", "Delete Node"))
         self.show_path_btn.setText(_translate("MainWindow", "Show Path"))
+        self.clear_path_btn.setText(_translate("MainWindow", "Clear Path"))
         self.path_label.setText(_translate("MainWindow", "Path"))
         self.Graph_control.setText(_translate("MainWindow", "GRAPH CONTROL"))
 

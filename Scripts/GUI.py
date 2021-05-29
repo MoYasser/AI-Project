@@ -457,6 +457,43 @@ class GraphGUi(QtWidgets.QGraphicsScene):
          self.path_displayed = (True, start_node, goal_node, str(short_path_info[1])) # reset path displayed information
          self.data_updater.signal.emit() # emit a signal to notify that the graph was updated
 
+    def show_BFS_path(self, start_node, goal_node):
+        self.delete_shortest_path()  # delete shortest path of currently displayed
+        path = None
+
+        if start_node not in self.nodes or goal_node not in self.nodes:  # nodes for path not in nodes dictionary
+            self.InvalidInMsg.setText('Invalid node value input')
+            self.InvalidInMsg.exec_()  # show message and exit
+            return
+
+        short_path_info = path_alg.BFS(self.graph, start_node, [goal_node])[0]
+        if short_path_info[1] < 0:
+            return
+        path = short_path_info[2]
+
+        if path == None:  # if no path
+            self.InvalidInMsg.setText('No path exists between nodes "'+str(start_node)+'" and "'+str(goal_node)+'"')
+            self.InvalidInMsg.exec_()  # show message # deselect nodes in graph and exit
+            self.update()
+            return
+        node_val = None
+
+        while len(path) > 1: # while length of path if greater than 1
+            node_val = path.pop(0) # remove first item from path
+            self.nodes[node_val].highlighted = True # highlight that node
+            if len(path) > 0: # if length of path is still greater than 0
+                if (node_val, path[0]) in self.edges: # and edge exists between current node value and next in path
+                    self.edges[(node_val, path[0])].highlighted = True # highlight the edge
+                else:
+                    self.edges[(path[0], node_val)].highlighted = True # else the edge exists as being from next in path to current node
+        self.nodes[path[0]].highlighted = True # highlight the last node in the path
+
+        if self.graph:
+         self.overlay_highlighted()
+         self.update()
+         self.path_displayed = (True, start_node, goal_node, str(short_path_info[1])) # reset path displayed information
+         self.data_updater.signal.emit() # emit a signal to notify that the graph was updated
+
     def show_AStar_path (self, start_node, goal_node):
         self.delete_shortest_path()  # delete shortest path of currently displayed
         path = None
@@ -545,6 +582,8 @@ class GraphGUi(QtWidgets.QGraphicsScene):
             self.show_uniform_cost_path(self.path_displayed[1], self.path_displayed[2])
         elif self.current_path_algo == 'DFS':
             self.show_DFS_path(self.path_displayed[1], self.path_displayed[2])
+        elif self.current_path_algo == 'BFS':
+            self.show_BFS_path(self.path_displayed[1], self.path_displayed[2])
         elif self.current_path_algo == 'A*':
             self.show_AStar_path(self.path_displayed[1], self.path_displayed[2])
         elif self.current_path_algo == 'Greedy':
