@@ -133,7 +133,7 @@ class GraphGUi(QtWidgets.QGraphicsScene):
         self.graph = graph.Graph_GUI(self.digraph)  # graph object to underlay the graphical interface
         self.gs = GraphSearch.Graph()
 
-        self.path_displayed = (False, 'NONE', 'NONE', 'NO PATH')  # initialize information about displayed path
+        self.path_displayed = (False, 'NONE', 'NONE', '-')  # initialize information about displayed path
         self.current_path_algo = 'Uniform Cost'  # set current path algorithm being used to DIJKSTRA
 
         self.data_updater = UpdateData()  # create a data updater to send out a signal anytime data about the graph is changed
@@ -429,11 +429,11 @@ class GraphGUi(QtWidgets.QGraphicsScene):
             self.InvalidInMsg.exec_()  # show message and exit
             return
 
-        short_path_info = path_alg.DFS(self.graph, start_node, [goal_node])[0]
+        # short_path_info = path_alg.BFS(self.graph, start_node, [goal_node])[0]
+        short_path_info = self.gs.DFS(int(start_node), int(goal_node))
         if short_path_info[1] < 0:
             return
-        path = short_path_info[2]
-
+        path = short_path_info.copy()
         if path == None:  # if no path
             self.InvalidInMsg.setText(
                 'No path exists between nodes "' + str(start_node) + '" and "' + str(goal_node) + '"')
@@ -441,24 +441,10 @@ class GraphGUi(QtWidgets.QGraphicsScene):
             self.update()
             return
         node_val = None
-
         while len(path) > 1:  # while length of path if greater than 1
-            node_val = path.pop(0)  # remove first item from path
+            node_val = str(path.pop(0))  # remove first item from path
             self.nodes[node_val].highlighted = True  # highlight that node
-            if len(path) > 0:  # if length of path is still greater than 0
-                if (node_val, path[0]) in self.edges:  # and edge exists between current node value and next in path
-                    self.edges[(node_val, path[0])].highlighted = True  # highlight the edge
-                else:
-                    self.edges[(path[0],
-                                node_val)].highlighted = True  # else the edge exists as being from next in path to current node
-        self.nodes[path[0]].highlighted = True  # highlight the last node in the path
-
-        if self.graph:
-            self.overlay_highlighted()
-            self.update()
-            self.path_displayed = (
-                True, start_node, goal_node, str(short_path_info[1]))  # reset path displayed information
-            self.data_updater.signal.emit()  # emit a signal to notify that the graph was updated
+        self.nodes[str(path[0])].highlighted = True  # highlight the last node in the path
 
     def show_BFS_path(self, start_node, goal_node):
         self.delete_shortest_path()  # delete shortest path of currently displayed
@@ -469,11 +455,10 @@ class GraphGUi(QtWidgets.QGraphicsScene):
             self.InvalidInMsg.exec_()  # show message and exit
             return
 
-        short_path_info = path_alg.BFS(self.graph, start_node, [goal_node])[0]
+        short_path_info = self.gs.BFS(int(start_node), int(goal_node))
         if short_path_info[1] < 0:
             return
-        path = short_path_info[2]
-
+        path = short_path_info.copy()
         if path == None:  # if no path
             self.InvalidInMsg.setText(
                 'No path exists between nodes "' + str(start_node) + '" and "' + str(goal_node) + '"')
@@ -481,24 +466,10 @@ class GraphGUi(QtWidgets.QGraphicsScene):
             self.update()
             return
         node_val = None
-
         while len(path) > 1:  # while length of path if greater than 1
-            node_val = path.pop(0)  # remove first item from path
+            node_val = str(path.pop(0))  # remove first item from path
             self.nodes[node_val].highlighted = True  # highlight that node
-            if len(path) > 0:  # if length of path is still greater than 0
-                if (node_val, path[0]) in self.edges:  # and edge exists between current node value and next in path
-                    self.edges[(node_val, path[0])].highlighted = True  # highlight the edge
-                else:
-                    self.edges[(path[0],
-                                node_val)].highlighted = True  # else the edge exists as being from next in path to current node
-        self.nodes[path[0]].highlighted = True  # highlight the last node in the path
-
-        if self.digraph:
-            self.overlay_highlighted()
-            self.update()
-            self.path_displayed = (
-                True, start_node, goal_node, str(short_path_info[1]))  # reset path displayed information
-            self.data_updater.signal.emit()  # emit a signal to notify that the graph was updated
+        self.nodes[str(path[0])].highlighted = True  # highlight the last node in the path
 
     def show_AStar_path(self, start_node, goal_node):
         self.delete_shortest_path()  # delete shortest path of currently displayed
@@ -530,7 +501,7 @@ class GraphGUi(QtWidgets.QGraphicsScene):
 
         if self.digraph: self.overlay_highlighted()
         self.update()
-        self.path_displayed = (True, node1, node2, str(short_path_info[1]))
+        self.path_displayed = (True, start_node, goal_node, str(self.gs.cost))
         self.data_updater.signal.emit()
 
     def show_Greedy_path(self, start_node, goal_node):
@@ -563,7 +534,7 @@ class GraphGUi(QtWidgets.QGraphicsScene):
 
         if self.digraph: self.overlay_highlighted()
         self.update()
-        self.path_displayed = (True, node1, node2, str(short_path_info[1]))
+        self.path_displayed = (True, start_node, goal_node, str(self.gs.cost))
         self.data_updater.signal.emit()
 
     def delete_shortest_path(self):

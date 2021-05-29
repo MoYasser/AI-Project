@@ -19,36 +19,28 @@ class Graph:
                     Q.append(u)
                     visited[u] = True
 
-    def DFS(self, current):
-
+    def DFS(self, current, goal):
+        index = 0
         visited = [False for i in range(self.m_V)]
-        stack = []
-        stack.append(current)
+        stack = [current]
         while len(stack) > 0:
-            current = stack[-1]
+            current = stack[index]
             stack.pop()
+            index -= 1
             if not visited[current]:
                 print(current)
                 visited[current] = True
-
+            if current == goal:
+                return
             for vertex in self.m_adj[current]:
                 if not visited[vertex]:
                     stack.append(vertex)
+                    index += 1
 
 
 g = Graph(10)
 g.add_edge(0, 1)
-g.add_edge(0, 3)
-g.add_edge(1, 4)
+g.add_edge(0, 2)
+g.add_edge(1, 3)
 g.add_edge(2, 4)
-g.add_edge(3, 2)
-g.add_edge(3, 5)
-g.add_edge(5, 2)
-g.add_edge(5, 6)
-g.add_edge(4, 7)
-g.add_edge(4, 6)
-g.add_edge(7, 6)
-print('DFS')
-g.DFS(0)
-print('BFS')
-g.BFS(1)
+g.DFS(0, 3)
