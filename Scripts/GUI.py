@@ -1,19 +1,19 @@
 from PyQt5 import QtCore, QtGui,QtWidgets
 import GUIGraph as graph
+import GraphSearch
 import graph_path_algorithm as path_alg
 import math
-import InformedSearch
 
 
 class Node(QtWidgets.QGraphicsItem):
-    def __init__(self, x, y, val):
+    def __init__(self, x, y, val, heuristic):
 
         super().__init__()
 
         self.x = x # set x coordinate of node
         self.y = y # set y coordinate of node
         self.val = val # set node value
-        #self.heuristic = heuristic
+        self.heuristic = heuristic
         self.highlighted = False
         self.selected = False
 
@@ -38,7 +38,9 @@ class Node(QtWidgets.QGraphicsItem):
         painter.setPen(QtCore.Qt.white)
         painter.setFont(QtGui.QFont('Decorative', (10/len(str(self.val)) + 5)))
         painter.drawText(QtCore.QRect(self.x, self.y, 35, 35), QtCore.Qt.AlignCenter, self.val)
-
+        painter.setPen(QtCore.Qt.black)  # pen to black
+        painter.setFont(QtGui.QFont('Decorative', 11))  # set font
+        painter.drawText(QtCore.QRect(self.x, self.y+30, 50, 40), QtCore.Qt.AlignCenter, 'h = ' + self.heuristic)
 
 
     def boundingRect(self):
@@ -72,7 +74,6 @@ class Edge(QtWidgets.QGraphicsItem):
 
         # to get unit vector requires: u = v/|v|
         dom = math.sqrt(math.pow(v1, 2) + math.pow(v2, 2)) # = |v|
-
         new_x = v1/dom # unit vector x component
         new_y = v2/dom # unit vecotr y componenet
 
@@ -113,6 +114,9 @@ class Edge(QtWidgets.QGraphicsItem):
                 # if edge is highlighted paint arrow green
                 pen.setColor(QtCore.Qt.green)
                 painter.setBrush(QtGui.QColor(165,255, 0, 255))
+                painter.setPen(QtCore.Qt.black)  # pen to black
+                painter.setFont(QtGui.QFont('Decorative', 11))  # set font
+                painter.drawText(self.midx, self.midy, self.strWeight)
         else:
                 # otherwise paint it red
 
@@ -234,19 +238,20 @@ class GraphGUi(QtWidgets.QGraphicsScene):
         node_val, ok = QtWidgets.QInputDialog.getText(QtWidgets.QWidget(), 'Enter Node info',
             'Enter node name:') # use dialog to get node value to be added
 
-
         if ok: # dialog value was input
             if len(str(node_val)) < 5 and len(str(node_val)) > 0: # if input was between 1 and 4 characters
+                nodeH, ok = QtWidgets.QInputDialog.getText(QtWidgets.QWidget(), 'Enter Node info','Enter node heuristic:')
                 connections = []
-                path_shown = self.path_displayed[0] # get wether or not a shortest path is currently displayed
-                self.delete_shortest_path() # delete shortest path
-                if node_val in self.nodes: # node being added already exists
+                path_shown = self.path_displayed[0] # get whether or not a shortest path is currently displayed
+                self.delete_shortest_path()
+                if node_val in self.nodes:
                     connections = self.remove_node(node_val) # remove original node and save all its node connections
 
-                node = Node(x-20, y-20, str(node_val)) # create a new node at the given x and y coordinates
+                node = Node(x-20, y-20, str(node_val),nodeH) # create a new node at the given x and y coordinates
                 self.addItem(node) # add node to scene
                 self.nodes[node.val] = node # add node to node dictionary
                 self.graph.add_node(node.val) # add node value to underlying graph objects
+                self.graph.add_node(node.heuristic)
                 for connection in connections: # for each of the original node connections
                     self.add_edge(connection[0], connection[1], connection[2]) # add the original edges
 
@@ -415,14 +420,19 @@ class GraphGUi(QtWidgets.QGraphicsScene):
          self.path_displayed = (True, from_node_val, to_node_val, str(short_path_info[1])) # reset path displayed information
          self.data_updater.signal.emit() # emit a signal to notify that the graph was updated
 
-    def show_BFS_path(self, start_node, goal_node):
+    def show_DFS_path(self, start_node, goal_node):
         self.delete_shortest_path()  # delete shortest path of currently displayed
         path = None
 
-        short_path_info = path_alg.BFS(self.graph, start_node, goal_node)
-        if short_path_info[1] == 0:
+        if start_node not in self.nodes or goal_node not in self.nodes:  # nodes for path not in nodes dictionary
+            self.InvalidInMsg.setText('Invalid node value input')
+            self.InvalidInMsg.exec_()  # show message and exit
             return
-        path = short_path_info[2] # get the path list from running that path search
+
+        short_path_info = path_alg.DFS(self.graph, start_node, [goal_node])[0]
+        if short_path_info[1] < 0:
+            return
+        path = short_path_info[2]
 
         if path == None:  # if no path
             self.InvalidInMsg.setText('No path exists between nodes "'+str(start_node)+'" and "'+str(goal_node)+'"')
@@ -441,7 +451,7 @@ class GraphGUi(QtWidgets.QGraphicsScene):
                     self.edges[(path[0], node_val)].highlighted = True # else the edge exists as being from next in path to current node
         self.nodes[path[0]].highlighted = True # highlight the last node in the path
 
-        if self.digraph:
+        if self.graph:
          self.overlay_highlighted()
          self.update()
          self.path_displayed = (True, start_node, goal_node, str(short_path_info[1])) # reset path displayed information
@@ -450,9 +460,63 @@ class GraphGUi(QtWidgets.QGraphicsScene):
     def show_AStar_path (self, start_node, goal_node):
         self.delete_shortest_path()  # delete shortest path of currently displayed
         path = None
-        node1 = InformedSearch.Graph.set_start(start_node)
-        node2 = InformedSearch.Graph.set_goal(goal_node)
-        short_path_info = InformedSearch.Graph.A_star(start_node)
+        node1 = GraphSearch.Graph.set_start(start_node)
+        node2 = GraphSearch.Graph.set_goal(goal_node)
+        short_path_info = GraphSearch.Graph.A_star(self.graph,start_node)[0]
+        if short_path_info[1] < 0:
+            return
+        path = short_path_info[2]
+        if path == None:  # if no path
+            self.InvalidInMsg.setText('No path exists between nodes "'+str(node1)+'" and "'+str(node2)+'"')
+            self.InvalidInMsg.exec_()  # show message # deselect nodes in graph and exit
+            self.update()
+            return
+        node_val = None
+        while len(path) > 1: # while length of path if greater than 1
+            node_val = path.pop(0) # remove first item from path
+            self.nodes[node_val].highlighted = True # highlight that node
+            if len(path) > 0: # if length of path is still greater than 0
+                if (node_val, path[0]) in self.edges: # and edge exists between current node value and next in path
+                    self.edges[(node_val, path[0])].highlighted = True # highlight the edge
+                else:
+                    self.edges[(path[0], node_val)].highlighted = True # else the edge exists as being from next in path to current node
+        self.nodes[path[0]].highlighted = True # highlight the last node in the path
+
+        if self.digraph: self.overlay_highlighted()
+        self.update()
+        self.path_displayed = (True, node1, node2, str(short_path_info[1]))
+        self.data_updater.signal.emit()
+
+    def show_Greedy_path(self, start_node, goal_node):
+        self.delete_shortest_path()  # delete shortest path of currently displayed
+        path = None
+        node1 = GraphSearch.Graph.set_start(start_node)
+        node2 = GraphSearch.Graph.set_goal(goal_node)
+        short_path_info = GraphSearch.Graph.greedy_search(self, node1)[0]
+        if short_path_info[1] < 0:
+            return
+        path = short_path_info[2]
+        if path == None:  # if no path
+            self.InvalidInMsg.setText('No path exists between nodes "' + str(node1) + '" and "' + str(node2) + '"')
+            self.InvalidInMsg.exec_()  # show message # deselect nodes in graph and exit
+            self.update()
+            return
+        node_val = None
+        while len(path) > 1:  # while length of path if greater than 1
+            node_val = path.pop(0)  # remove first item from path
+            self.nodes[node_val].highlighted = True  # highlight that node
+            if len(path) > 0:  # if length of path is still greater than 0
+                if (node_val, path[0]) in self.edges:  # and edge exists between current node value and next in path
+                    self.edges[(node_val, path[0])].highlighted = True  # highlight the edge
+                else:
+                    self.edges[(path[0],
+                                node_val)].highlighted = True  # else the edge exists as being from next in path to current node
+        self.nodes[path[0]].highlighted = True  # highlight the last node in the path
+
+        if self.digraph: self.overlay_highlighted()
+        self.update()
+        self.path_displayed = (True, node1, node2, str(short_path_info[1]))
+        self.data_updater.signal.emit()
 
 
 
@@ -479,8 +543,12 @@ class GraphGUi(QtWidgets.QGraphicsScene):
         # function to be used on graphs that are updated
         if self.current_path_algo == 'Uniform Cost':
             self.show_uniform_cost_path(self.path_displayed[1], self.path_displayed[2])
-        if self.current_path_algo == 'BFS':
-            self.show_BFS_path(self.path_displayed[1], self.path_displayed[2])
+        elif self.current_path_algo == 'DFS':
+            self.show_DFS_path(self.path_displayed[1], self.path_displayed[2])
+        elif self.current_path_algo == 'A*':
+            self.show_AStar_path(self.path_displayed[1], self.path_displayed[2])
+        elif self.current_path_algo == 'Greedy':
+            self.show_Greedy_path(self.path_displayed[1], self.path_displayed[2])
 
         self.update()
 

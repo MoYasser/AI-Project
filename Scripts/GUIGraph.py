@@ -54,7 +54,6 @@ class Graph_GUI(object):
         if not self.digraph:  # if graph
             rand = random.choice(list(self.nodes_dict.keys()))  # randomly select node
             return self.check_connections(rand, visited)  # check connections
-        # if digraph
         connected = []
         for node in self.nodes_dict.keys():  # for every node
             visited.clear()  # clear visited

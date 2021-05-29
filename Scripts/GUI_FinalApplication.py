@@ -400,10 +400,15 @@ class Ui_MainWindow(object):
     def show_selected_path(self):
         algo = self.scene.current_path_algo  # get the current algorithm being used by GraphScene
 
-        if algo == 'Uniform Cost':  # if using dijkstra
+        if algo == 'Uniform Cost':
             self.scene.show_uniform_cost_path(self.start_node_labelbox.text(), self.end_node_labelbox.text())
-        if algo == 'BFS':
-            self.scene.show_BFS_path(self.start_node_labelbox.text(), self.end_node_labelbox.text())
+        if algo == 'DFS':
+            self.scene.show_DFS_path(self.start_node_labelbox.text(), self.end_node_labelbox.text())
+        if algo == 'A*':
+            self.scene.show_AStar_path(self.start_node_labelbox.text(), self.end_node_labelbox.text())
+        if algo == 'Greedy':
+            self.scene.show_Greedy_path(self.start_node_labelbox.text(), self.end_node_labelbox.text())
+
 
     def edit_path_algorithm(self):
 
@@ -460,16 +465,6 @@ class Ui_MainWindow(object):
             self.node1_val_lab.setText(_translate("MainWindow", "--"))
             self.node2__val_lab.setText(_translate("MainWindow", "--"))
             self.dist_val_lab.setText(_translate("MainWindow", "--"))
-
-        # set label to indicate if graph is connected
-        if self.scene.graph.is_connected():
-            self.graph_status.setText(_translate("MainWindow", "YES"))
-        else:
-            self.graph_status.setText(_translate("MainWindow", "NO"))
-
-        # show the current number of edges and nodes in graph
-        self.num_nodes_val.setText(_translate("MainWindow", str(len(self.scene.nodes))))
-        self.num_edges_val.setText(_translate("MainWindow", str(len(self.scene.edges))))
 
 
 class SceneConnectedComboBox(QtWidgets.QComboBox):

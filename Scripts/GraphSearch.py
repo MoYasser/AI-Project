@@ -22,6 +22,9 @@ class Vertex(object):
     def get_id(self):
         return self.id
 
+    def get_heuristic(self, neighbor):
+        return  self.heuristic[neighbor]
+
     def get_weight(self, neighbor):
         return self.adjacent[neighbor]
 
@@ -74,18 +77,20 @@ class Graph:
     def del_start(self, node):
         self.vert_dict[node].isStart = False
 
-    def BFS(self, s):
-        Q = []
-        visited = [False] * self.num_vertices
-        Q.append(s)
-        visited[s] = True
-        while len(Q) > 0:
-            v = Q.pop(0)
-            print(f'{v} ')
-            for u in self.m_adj[v]:
-                if not visited[u]:
-                    Q.append(u)
-                    visited[u] = True
+    def BFS(self, node):
+        ref_path = [self.vert_dict[node]]
+        path = [node]
+        while not self.vert_dict[node].isGoal:
+            self.fringe = self.vert_dict[node].fx
+            for i in ref_path:
+                if i in self.fringe.keys():
+                    self.fringe.pop(i)
+            next_vertex = min(self.fringe, key=self.fringe.get)
+            node = next_vertex.id
+            ref_path.append(next_vertex)
+            path.append(node)
+        print(path)
+        print(ref_path)
 
     def DFS(self, current):
 
@@ -162,11 +167,10 @@ g.add_edge(4, 6, 7)
 g.add_edge(7, 6, 3)
 g.set_start(0)
 g.set_goal(6)
-g.greedy_search(0)
 print('DFS')
 g.DFS(0)
 print('BFS')
-g.BFS(1)
+g.BFS(0)
 print('Greedy')
 g.greedy_search(0)
 print('A*')
