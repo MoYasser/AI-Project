@@ -252,6 +252,7 @@ class GraphGUi(QtWidgets.QGraphicsScene):
                 self.nodes[node.val] = node # add node to node dictionary
                 self.graph.add_node(node.val) # add node value to underlying graph objects
                 self.graph.add_node(node.heuristic)
+                #GraphSearch.Graph.add_vertex(node.val,node.heuristic)
                 for connection in connections: # for each of the original node connections
                     self.add_edge(connection[0], connection[1], connection[2]) # add the original edges
 
@@ -303,6 +304,7 @@ class GraphGUi(QtWidgets.QGraphicsScene):
 
         self.addItem(edge) # add edge to scene
         self.graph.add_edge(node1.val, node2.val, numWeight) # add edge to underlying graph
+        GraphSearch.Graph.add_edge(node1_val, node2_val, numWeight)
         # reset all nodes in graph so they are layered over the edges
         for val, node in self.nodes.items():
             self.removeItem(node)
@@ -313,7 +315,6 @@ class GraphGUi(QtWidgets.QGraphicsScene):
         self.path_displayed = (path_shown, self.path_displayed[1], self.path_displayed[2], self.path_displayed[3]) # reset path displayed value
         if self.path_displayed[0]: # if path was displayed before adding the edge
             self.reset_path() # find and display path
-
         self.data_updater.signal.emit() # emit a signal to notify that the graph was updated
         return True # return true if edge successfully added
 
@@ -343,6 +344,7 @@ class GraphGUi(QtWidgets.QGraphicsScene):
 
         self.removeItem(edge) # remove edge from scene
         self.graph.remove_edge(node1_val, node2_val) # remove edge from underlaying graph
+        GraphSearch.Graph.rem
 
         del self.edges[(edge.node1.val, edge.node2.val)] # delete edge from edges dictionary
 
@@ -488,7 +490,7 @@ class GraphGUi(QtWidgets.QGraphicsScene):
                     self.edges[(path[0], node_val)].highlighted = True # else the edge exists as being from next in path to current node
         self.nodes[path[0]].highlighted = True # highlight the last node in the path
 
-        if self.graph:
+        if self.digraph:
          self.overlay_highlighted()
          self.update()
          self.path_displayed = (True, start_node, goal_node, str(short_path_info[1])) # reset path displayed information
