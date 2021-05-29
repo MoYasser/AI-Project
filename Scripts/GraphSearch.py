@@ -23,7 +23,7 @@ class Vertex(object):
         return self.id
 
     def get_heuristic(self, neighbor):
-        return  self.heuristic[neighbor]
+        return self.heuristic[neighbor]
 
     def get_weight(self, neighbor):
         return self.adjacent[neighbor]
@@ -125,6 +125,7 @@ class Graph:
         print(path)
         print(ref_path)
         print(cost)
+        return path
 
     def A_star(self, node):
         ref_path = [self.vert_dict[node]]
@@ -147,32 +148,3 @@ class Graph:
 
 
 g = Graph()
-g.add_vertex(0, 100)
-g.add_vertex(1, 9)
-g.add_vertex(2, 5)
-g.add_vertex(3, 6)
-g.add_vertex(4, 4)
-g.add_vertex(5, 4)
-g.add_vertex(6, 0)
-g.add_edge(0, 1, 3)
-g.add_edge(0, 3, 2)
-g.add_edge(1, 4, 4)
-g.add_edge(2, 4, 1)
-g.add_edge(3, 2, 1)
-g.add_edge(3, 5, 4)
-g.add_edge(5, 2, 1)
-g.add_vertex(7, 2)
-g.add_edge(5, 6, 6)
-g.add_edge(4, 7, 2)
-g.add_edge(4, 6, 7)
-g.add_edge(7, 6, 3)
-g.set_start(0)
-g.set_goal(6)
-print('DFS')
-g.DFS(0)
-print('BFS')
-g.BFS(0)
-print('Greedy')
-g.greedy_search(0)
-print('A*')
-g.A_star(0)
