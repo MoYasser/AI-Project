@@ -77,7 +77,7 @@ class Ui_MainWindow(object):
         self.select_path_alg_comboBox = SceneConnectedComboBox(self.centralwidget, self.scene)  # box requires reference to scene
         self.select_path_alg_comboBox.setEditable(False)
         self.select_path_alg_comboBox.setStyleSheet("background-color: white")
-        self.select_path_alg_comboBox.addItems(['A*', 'BFS','DFS', 'Uniform Cost', 'Greedy'])  # algorithms that can be run
+        self.select_path_alg_comboBox.addItems(['None', 'A*', 'BFS','DFS', 'Uniform Cost', 'Greedy'])  # algorithms that can be run
         self.select_path_alg_comboBox.setMaxVisibleItems(8)
         self.select_path_alg_comboBox.setObjectName("select_path_alg_comboBox")
         self.select_path_alg_comboBox.setCurrentIndex(0)
@@ -172,38 +172,6 @@ class Ui_MainWindow(object):
         self.graph_info_lab.setObjectName("graph_info_lab")
         self.verticalLayout.addWidget(self.graph_info_lab)
 
-
-        self.node_count_lab = QtWidgets.QLabel(self.centralwidget)
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.node_count_lab.setFont(font)
-        self.node_count_lab.setObjectName("node_count_lab")
-        self.gridLayout_2.addWidget(self.node_count_lab, 0, 0, 1, 1)
-
-        self.edge_count_lab = QtWidgets.QLabel(self.centralwidget)
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.edge_count_lab.setFont(font)
-        self.edge_count_lab.setObjectName("edge_count_lab")
-        self.gridLayout_2.addWidget(self.edge_count_lab, 1, 0, 1, 1)
-
-        self.num_nodes_val = QtWidgets.QLabel(self.centralwidget)
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        font.setWeight(75)
-        self.num_nodes_val.setFont(font)
-        self.num_nodes_val.setObjectName("num_nodes_val")
-        self.gridLayout_2.addWidget(self.num_nodes_val, 0, 1, 1, 1)
-
-        self.num_edges_val = QtWidgets.QLabel(self.centralwidget)
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        font.setWeight(75)
-        self.num_edges_val.setFont(font)
-        self.num_edges_val.setObjectName("num_edges_val")
-        self.gridLayout_2.addWidget(self.num_edges_val, 1, 1, 1, 1)
 
         self.graph_status_lab = QtWidgets.QLabel(self.centralwidget)
         font = QtGui.QFont()
@@ -386,15 +354,13 @@ class Ui_MainWindow(object):
 
         # connect edit_path_algorithm to combobox
         self.select_path_alg_comboBox.activated.connect(self.edit_path_algorithm)
-
-        # connect update_data function to signal
         self.scene.data_updater.signal.connect(lambda: self.update_data())
         self.AddEdge_btn.clicked.connect(lambda: self.scene.add_edge(self.Node1_labelbox.text(),
                                                                       self.Node2_labelbox.text(),
-                                                                      self.edge_weight_labelbox.text()))  # add edge
+                                                                      self.edge_weight_labelbox.text()))
 
         self.delete_edge_btn.clicked.connect(lambda: self.scene.remove_edge(self.Node1RE_labelbox.text(),
-                                                                            self.Node2RE_labelbox.text()))  # remove edge
+                                                                            self.Node2RE_labelbox.text()))
         self.show_path_btn.clicked.connect(lambda: self.show_selected_path())
         self.clear_path_btn.clicked.connect(lambda: self.scene.delete_shortest_path())
 

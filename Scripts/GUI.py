@@ -11,8 +11,8 @@ class Node(QtWidgets.QGraphicsItem):
 
         super().__init__()
 
-        self.x = x  # set x coordinate of node
-        self.y = y  # set y coordinate of node
+        self.x = x
+        self.y = y
         self.val = val  # set node value
         self.heuristic = heuristic
         self.highlighted = False
@@ -21,19 +21,15 @@ class Node(QtWidgets.QGraphicsItem):
     def paint(self, painter, option, widget):
 
         if self.selected:
-            # if the node is seleted paint it red
             painter.setPen(QtCore.Qt.black)
             painter.setBrush(QtCore.Qt.palegreen)
         elif self.highlighted:
-            # if the node is highlighted paint it green
             painter.setPen(QtCore.Qt.green)
             painter.setBrush(QtCore.Qt.darkGreen)
 
         else:
-            # otehrwise paint it orange
             painter.setPen(QtCore.Qt.darkBlue)
             painter.setBrush(QtCore.Qt.blue)
-        # paint the node to the scene
         painter.drawEllipse(self.x, self.y, 35, 35)
         painter.setPen(QtCore.Qt.white)
         painter.setFont(QtGui.QFont('Decorative', (10 / len(str(self.val)) + 5)))
@@ -51,14 +47,14 @@ class Edge(QtWidgets.QGraphicsItem):
 
         super().__init__()
         self.directed = directed
-        self.node1 = node1  # set node at one end of edge
-        self.node2 = node2  # set node at other end of edge
-        self.x1 = node1.x + 20  # set x coordinate of one end of edge
-        self.y1 = node1.y + 20  # set y coordinate of one end of edge
-        self.x2 = node2.x + 20  # set x coordinate of other end of edge
-        self.y2 = node2.y + 20  # set y coordinate of other end of edge
+        self.node1 = node1
+        self.node2 = node2
+        self.x1 = node1.x + 20
+        self.y1 = node1.y + 20
+        self.x2 = node2.x + 20
+        self.y2 = node2.y + 20
 
-        self.weight = weight  # set edge weight of edge
+        self.weight = weight
         self.midx = (self.x1 + self.x2) / 2  # find midpoint x cooridinate of edge
         self.midy = (self.y1 + self.y2) / 2  # find midpoint y cooridinate of edge
         self.strWeight = str(weight)  # get weight as string
@@ -66,31 +62,22 @@ class Edge(QtWidgets.QGraphicsItem):
 
     def get_directed_arrow_points(self, x1, y1, x2, y2, d):
 
-        # get point for head of arrow--
         v1 = x1 - x2  # x cooridinate for vector between points
         v2 = y1 - y2  # y coordinate for vicot between points
-
-        # to get unit vector requires: u = v/|v|
         dom = math.sqrt(math.pow(v1, 2) + math.pow(v2, 2))  # = |v|
-        new_x = v1 / dom  # unit vector x component
-        new_y = v2 / dom  # unit vecotr y componenet
-
+        new_x = v1 / dom
+        new_y = v2 / dom
         point1 = (x2 + new_x * d, y2 + new_y * d)
         p1x = x2 + new_x * d * 2  # get x value of a point along the edge that is twice as far along the edge as the given node radius d
         p1y = y2 + new_y * d * 2  # get y value of point
-
         # because we now want a unit vector perpendicular to the original edge
-        v2 = x1 - p1x  # switch x and y vector values
-        v1 = -(y1 - p1y)  # and negate a vector component
-
-        # to get unit vector requires: u = v/|v|
+        v2 = x1 - p1x
+        v1 = -(y1 - p1y)
         dom = math.sqrt(math.pow(v1, 2) + math.pow(v2, 2))  # = |v|
-
         new_x = v1 / dom  # get unit vector components
         new_y = v2 / dom
         point2 = (p1x + new_x * d / 2.0, p1y + new_y * d / 2.0)  # length from this point to edge is 1/2 radius of node
-
-        return ([point1, point2])  # return a list of the three points
+        return ([point1, point2])
 
     def paint(self, painter, option, widget):
         pen = QtGui.QPen()
@@ -110,14 +97,12 @@ class Edge(QtWidgets.QGraphicsItem):
             pen.setColor(QtCore.Qt.green)
             painter.setBrush(QtGui.QColor(165, 255, 0, 255))
             painter.setPen(QtCore.Qt.black)  # pen to black
-            painter.setFont(QtGui.QFont('Decorative', 11))  # set font
+            painter.setFont(QtGui.QFont('Decorative', 11))
             painter.drawText(self.midx, self.midy, self.strWeight)
         else:
-            # otherwise paint it red
-
-            painter.setPen(QtCore.Qt.black)  # pen to black
-            painter.setFont(QtGui.QFont('Decorative', 11))  # set font
-            painter.drawText(self.midx, self.midy, self.strWeight)  # draw weight near mipoint of edge
+            painter.setPen(QtCore.Qt.black)
+            painter.setFont(QtGui.QFont('Decorative', 11))
+            painter.drawText(self.midx, self.midy, self.strWeight)
 
     def boundingRect(self):
         return QtCore.QRectF(0, 0, 2500, 2500)
@@ -127,18 +112,15 @@ class GraphGUi(QtWidgets.QGraphicsScene):
     def __init__(self, digraph):
         super().__init__()
         self.digraph = digraph
-        self.setSceneRect(0, 0, 1200, 900)  # set size of graphical scene
-        self.nodes = {}  # node dictionary
-        self.edges = {}  # edge dictionary
-        self.graph = graph.Graph_GUI(self.digraph)  # graph object to underlay the graphical interface
+        self.setSceneRect(0, 0, 1200, 900)
+        self.nodes = {}
+        self.edges = {}
+        self.graph = graph.Graph_GUI(self.digraph)
         self.gs = GraphSearch.Graph()
 
         self.path_displayed = (False, 'NONE', 'NONE', '-')  # initialize information about displayed path
-        self.current_path_algo = 'Uniform Cost'  # set current path algorithm being used to DIJKSTRA
-
-        self.data_updater = UpdateData()  # create a data updater to send out a signal anytime data about the graph is changed
-
-        # set up message box for displaying invalid input alerts
+        self.current_path_algo = 'None'
+        self.data_updater = UpdateData()
         self.InvalidInMsg = QtWidgets.QMessageBox()
         self.InvalidInMsg.setStandardButtons(QtWidgets.QMessageBox.Ok)
         self.InvalidInMsg.setWindowTitle('Invalid input alert!')
@@ -147,9 +129,8 @@ class GraphGUi(QtWidgets.QGraphicsScene):
 
     def check_selected(self, requiredNum):
 
-        if len(self.selected) != requiredNum:  # if nodes arent selected print message and cancel
+        if len(self.selected) != requiredNum:
             return False
-
         return True
 
     def deselect_nodes(self):
@@ -258,13 +239,13 @@ class GraphGUi(QtWidgets.QGraphicsScene):
             if self.path_displayed[0]:  # if path was displayed before node was added
                 self.reset_path()  # find and display path
 
-            self.data_updater.signal.emit()  # emit a signal to notify that the graph was updated
+            self.data_updater.signal.emit()
 
     def add_edge(self, node1_val, node2_val, weight):
 
         try:
-            numWeight = int(weight)  # try to convert weigth to an integer
-        except ValueError:  # value error exception if unable to cast weight as a float
+            numWeight = int(weight)
+        except ValueError:
             self.InvalidInMsg.setText('Weight must be a number')
             self.InvalidInMsg.exec_()
             return False
@@ -289,7 +270,7 @@ class GraphGUi(QtWidgets.QGraphicsScene):
         path_shown = self.path_displayed[0]  # save whether shortest path is being shown
         self.delete_shortest_path()  # delete shortest path
         if (node1_val, node2_val) in self.edges or ((node2_val,
-                                                     node1_val) in self.edges and not self.digraph):  # if edge already exists between given nodes
+                                                     node1_val) in self.edges and not self.digraph):
             self.remove_edge(node1_val, node2_val)  # remove edge
 
         edge = Edge(node1, node2, numWeight, self.digraph)  # create new edge
@@ -297,7 +278,6 @@ class GraphGUi(QtWidgets.QGraphicsScene):
         self.addItem(edge)  # add edge to scene
         self.graph.add_edge(node1.val, node2.val, numWeight)  # add edge to underlying graph
         self.gs.add_edge(int(node1_val), int(node2_val), numWeight)
-        # reset all nodes in graph so they are layered over the edges
         for val, node in self.nodes.items():
             self.removeItem(node)
             self.addItem(node)
@@ -307,20 +287,20 @@ class GraphGUi(QtWidgets.QGraphicsScene):
         self.path_displayed = (path_shown, self.path_displayed[1], self.path_displayed[2],
                                self.path_displayed[3])  # reset path displayed value
         if self.path_displayed[0]:  # if path was displayed before adding the edge
-            self.reset_path()  # find and display path
-        self.data_updater.signal.emit()  # emit a signal to notify that the graph was updated
-        return True  # return true if edge successfully added
+            self.reset_path()
+        self.data_updater.signal.emit()
+        return True
 
     def remove_edge(self, node1_val, node2_val):
 
-        if node1_val not in self.nodes:  # if node1_val not in nodes dictinary
+        if node1_val not in self.nodes:
             self.InvalidInMsg.setText('"' + str(node1_val) + '" is not in graph')
-            self.InvalidInMsg.exec_()  # print message and exit
+            self.InvalidInMsg.exec_()
             return
 
-        if node2_val not in self.nodes:  # if node1_val not in nodes dictinary
+        if node2_val not in self.nodes:
             self.InvalidInMsg.setText('"' + str(node2_val) + '" is not in graph')
-            self.InvalidInMsg.exec_()  # print message and exit
+            self.InvalidInMsg.exec_()
             return
 
         if (node1_val, node2_val) not in self.edges:  # if edge from node1_val to node2_val not in edges dictionary
@@ -331,12 +311,12 @@ class GraphGUi(QtWidgets.QGraphicsScene):
                 self.InvalidInMsg.exec_()  # print message and exit
                 return
             else:
-                edge = self.edges[(node2_val, node1_val)]  # otherwise represent edge from node2_val, node1_val
+                edge = self.edges[(node2_val, node1_val)]
         else:
-            edge = self.edges[(node1_val, node2_val)]  # otherwise represent edge from node1_val, node2_val
+            edge = self.edges[(node1_val, node2_val)]
 
-        path_shown = self.path_displayed[0]  # save whether shortest path is being shown
-        self.delete_shortest_path()  # delete shortest path
+        path_shown = self.path_displayed[0]
+        self.delete_shortest_path()
 
         self.removeItem(edge)  # remove edge from scene
         self.graph.remove_edge(node1_val, node2_val)  # remove edge from underlaying graph
@@ -351,7 +331,7 @@ class GraphGUi(QtWidgets.QGraphicsScene):
 
     def remove_node(self, node_val):
 
-        if node_val not in self.nodes:  # if node value not in dictionary
+        if node_val not in self.nodes:
             self.InvalidInMsg.setText(str(node_val) + ' is not in graph')
             self.InvalidInMsg.exec_()  # print message and exit
             return
@@ -417,8 +397,8 @@ class GraphGUi(QtWidgets.QGraphicsScene):
             self.overlay_highlighted()
             self.update()
             self.path_displayed = (
-                True, from_node_val, to_node_val, str(short_path_info[1]))  # reset path displayed information
-            self.data_updater.signal.emit()  # emit a signal to notify that the graph was updated
+                True, from_node_val, to_node_val, str(short_path_info[1]))
+            self.data_updater.signal.emit()
 
     def show_DFS_path(self, start_node, goal_node):
         self.delete_shortest_path()  # delete shortest path of currently displayed
@@ -429,7 +409,6 @@ class GraphGUi(QtWidgets.QGraphicsScene):
             self.InvalidInMsg.exec_()  # show message and exit
             return
 
-        # short_path_info = path_alg.BFS(self.graph, start_node, [goal_node])[0]
         short_path_info = self.gs.DFS(int(start_node), int(goal_node))
         if short_path_info[1] < 0:
             return
@@ -472,7 +451,7 @@ class GraphGUi(QtWidgets.QGraphicsScene):
         self.nodes[str(path[0])].highlighted = True  # highlight the last node in the path
 
     def show_AStar_path(self, start_node, goal_node):
-        self.delete_shortest_path()  # delete shortest path of currently displayed
+        self.delete_shortest_path()
         path = None
         node1 = self.gs.set_start(int(start_node))
         node2 = self.gs.set_goal(int(goal_node))
@@ -505,7 +484,7 @@ class GraphGUi(QtWidgets.QGraphicsScene):
         self.data_updater.signal.emit()
 
     def show_Greedy_path(self, start_node, goal_node):
-        self.delete_shortest_path()  # delete shortest path of currently displayed
+        self.delete_shortest_path()
         path = None
         node1 = self.gs.set_start(int(start_node))
         node2 = self.gs.set_goal(int(goal_node))
@@ -538,11 +517,11 @@ class GraphGUi(QtWidgets.QGraphicsScene):
         self.data_updater.signal.emit()
 
     def delete_shortest_path(self):
-        for val, node in self.nodes.items():  # for each node in nodes dictionary
-            node.highlighted = False  # remove node highlights
+        for val, node in self.nodes.items():
+            node.highlighted = False
 
-        for val, edge in self.edges.items():  # for each edge
-            edge.highlighted = False  # remove highlights
+        for val, edge in self.edges.items():
+            edge.highlighted = False
 
         self.update()
         self.path_displayed = (
@@ -572,14 +551,12 @@ class GraphGUi(QtWidgets.QGraphicsScene):
         for (from_node_val, to_node_val), edge in self.edges.items():
             if edge.highlighted:
                 self.removeItem(edge)
-                self.addItem(edge)  # layer highlighted edges over none highlighted edges
+                self.addItem(edge)
 
         for node_val, node in self.nodes.items():
-            # layer all nodes over edges
             self.removeItem(node)
             self.addItem(node)
 
 
 class UpdateData(QtCore.QObject):
-    # class for signaling main window of updated data
     signal = QtCore.pyqtSignal()
