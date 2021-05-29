@@ -3,7 +3,7 @@ class Graph:
         self.m_V = v
         self.m_adj = [[] for i in range(v)]
 
-    def addEdge(self, u, v):
+    def add_edge(self, u, v):
         self.m_adj[u].append(v)
 
     def BFS(self, s):
@@ -36,14 +36,19 @@ class Graph:
                     stack.append(vertex)
 
 
-G = Graph(6)
-G.addEdge(0, 1)
-G.addEdge(0, 2)
-G.addEdge(1, 3)
-G.addEdge(2, 4)
-G.addEdge(3, 4)
-G.addEdge(4, 5)
+g = Graph(10)
+g.add_edge(0, 1)
+g.add_edge(0, 3)
+g.add_edge(1, 4)
+g.add_edge(2, 4)
+g.add_edge(3, 2)
+g.add_edge(3, 5)
+g.add_edge(5, 2)
+g.add_edge(5, 6)
+g.add_edge(4, 7)
+g.add_edge(4, 6)
+g.add_edge(7, 6)
 print('DFS')
-G.DFS(0)
+g.DFS(0)
 print('BFS')
-G.BFS(1)
+g.BFS(1)

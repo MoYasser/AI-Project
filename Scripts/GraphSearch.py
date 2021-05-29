@@ -32,6 +32,8 @@ class Graph:
         self.num_vertices = 0
         self.heur_dict = {}
         self.fringe = {}
+        self.m_adj = [[]]
+        self.old_list = []
 
     def __iter__(self):
         return iter(self.vert_dict.values())
@@ -41,6 +43,9 @@ class Graph:
         new_vertex = Vertex(node, h)
         self.vert_dict[node] = new_vertex
         self.heur_dict[node] = h
+        new_list = [[] for i in range(self.num_vertices)]
+        self.old_list = self.m_adj
+        self.m_adj = self.old_list + new_list
         return new_vertex
 
     def get_vertex(self, n):
@@ -52,6 +57,7 @@ class Graph:
     def add_edge(self, frm, to, weight):
         self.vert_dict[frm].add_neighbor(self.vert_dict[to], self.vert_dict[to].heur, weight)
         self.vert_dict[to].add_neighbor(self.vert_dict[frm], self.vert_dict[frm].heur, weight)
+        self.m_adj[frm].append(to)
 
     def get_vertices(self):
         return self.vert_dict.keys()
@@ -67,6 +73,35 @@ class Graph:
 
     def del_start(self, node):
         self.vert_dict[node].isStart = False
+
+    def BFS(self, s):
+        Q = []
+        visited = [False] * self.num_vertices
+        Q.append(s)
+        visited[s] = True
+        while len(Q) > 0:
+            v = Q.pop(0)
+            print(f'{v} ')
+            for u in self.m_adj[v]:
+                if not visited[u]:
+                    Q.append(u)
+                    visited[u] = True
+
+    def DFS(self, current):
+
+        visited = [False for i in range(self.num_vertices)]
+        stack = []
+        stack.append(current)
+        while len(stack) > 0:
+            current = stack[-1]
+            stack.pop()
+            if not visited[current]:
+                print(current)
+                visited[current] = True
+
+            for vertex in self.m_adj[current]:
+                if not visited[vertex]:
+                    stack.append(vertex)
 
     def greedy_search(self, node):
         ref_path = [self.vert_dict[node]]
@@ -104,6 +139,7 @@ class Graph:
         print(ref_path)
         print(cost)
 
+
 g = Graph()
 g.add_vertex(0, 100)
 g.add_vertex(1, 9)
@@ -112,7 +148,6 @@ g.add_vertex(3, 6)
 g.add_vertex(4, 4)
 g.add_vertex(5, 4)
 g.add_vertex(6, 0)
-g.add_vertex(7, 2)
 g.add_edge(0, 1, 3)
 g.add_edge(0, 3, 2)
 g.add_edge(1, 4, 4)
@@ -120,6 +155,7 @@ g.add_edge(2, 4, 1)
 g.add_edge(3, 2, 1)
 g.add_edge(3, 5, 4)
 g.add_edge(5, 2, 1)
+g.add_vertex(7, 2)
 g.add_edge(5, 6, 6)
 g.add_edge(4, 7, 2)
 g.add_edge(4, 6, 7)
@@ -127,3 +163,11 @@ g.add_edge(7, 6, 3)
 g.set_start(0)
 g.set_goal(6)
 g.greedy_search(0)
+print('DFS')
+g.DFS(0)
+print('BFS')
+g.BFS(1)
+print('Greedy')
+g.greedy_search(0)
+print('A*')
+g.A_star(0)
